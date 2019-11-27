@@ -1,60 +1,16 @@
-/*import processing.serial.*;
-
-Serial myPort;
-float prevY;
-int inByte; 
- 
-void setup() {
-  size(600, 200);
-  printArray(Serial.list());
-  myPort = new Serial(this, Serial.list()[0], 9600);
-  //frameRate(1); To plot the graph at 1 point per second 
-  frameRate(30);
-  plot();
-}
-
-
-void draw() {
-  
-    while (myPort.available() > 0) {
-    inByte = myPort.read();
-    println("Temperature: " + inByte);
-      
-    float plotVar = random(height);
-    plotVar = inByte;
-    stroke(255, 0, 0);
-    line(frameCount-1, prevY, frameCount, plotVar);
-    prevY = plotVar;
-    }
-}
- 
-void plot() {
-  background(0);
-  for (int i = 0; i <= width; i += 50) {
-    fill(0, 255, 0);
-    text(i/2, i-10, height-15);
-    stroke(255);
-    line(i, height, i, 0);
-  }
-  for (int j = 0; j < height; j += 33) {
-    fill(0, 255, 0);
-    text(6-j/(height/6), 0, j);
-    stroke(255);
-    line(0, j, width, j);
-  }
-}
-*/
-
-
  import processing.serial.*;
- 
+ import gohai.simpletweet.*;
+import java.math.*;
+SimpleTweet simpletweet;
+
  //globales
  PFont f;
  PFont F;
  int cont = 0;
  int inByte;
  Serial myPort;       
- int xPos = 40;         
+ int xPos = 40;  
+ boolean temperatureFlag = false;
  
  void setup () {
  f = createFont("Arial",12,true);
@@ -63,7 +19,15 @@ void plot() {
  printArray(Serial.list());
  myPort = new Serial(this, Serial.list()[0], 9600);
  frameRate(1);
- background(70);
+ background(100);
+ 
+   simpletweet = new SimpleTweet(this);
+
+  simpletweet.setOAuthConsumerKey("muFfPVy7HI2CL0716RM7efadJ");
+  simpletweet.setOAuthConsumerSecret("9TgwK3lFWddqDvPdpQ8zvVG0UF8In7rqN8VVx3VGioeO9dSxJo");
+  simpletweet.setOAuthAccessToken("735237998-MhzepvvH1UY587w1QlnesaM6NYqRP3rIBBK9qxQj");
+  simpletweet.setOAuthAccessTokenSecret("OqeIHCqgfXM7anFLolZgU4RNN8eAtqInEuUlsyTX4BFmf");
+  
  }
  
  void draw(){
@@ -73,9 +37,16 @@ void plot() {
  void serialEvent (Serial myPort) {
  while(myPort.available() > 0) {
    inByte = myPort.read();
-   print("Temperature: ");
-   print(inByte);
-   println(" ºC");
+   
+   if(temperatureFlag){
+     print("Danger ");
+   }
+
+     
+     print("Temperature = ");
+     print(inByte);
+     println(" degrees");
+   
  }
  
   stroke(175);
@@ -119,17 +90,34 @@ void plot() {
   
  // draw the line:
  
- int shift=200;            // set trace origin
+ int shift=40;            // set trace origin
  stroke(255,0,0);              // trace colour
  for(int i=0;i<2;i++){
-   
-  
-   line(xPos, height-inByte-(shift+2), xPos, height-inByte-shift);
-   xPos++;
+
+   //point(xPos,height-inByte*5);
+   line(xPos, height-inByte*5-(shift+2), xPos, height-inByte*5-shift);
+   xPos+=1;
  }
+ 
+ 
+ 
+ if(inByte>=60){
+     temperatureFlag = true;
+     String tweet = simpletweet.tweetImage(get(), 
+    "#ILoveMicrocontrollers\n");
+    println("Posted " + tweet);
+ }
+ 
+ if(inByte <= 30){
+   temperatureFlag = false;
+ }
+ 
+ 
  
  if(xPos >= width){
    xPos = 40;
+   println("estoy cleareando");
+   background(0);
    background(100); 
  } 
  
