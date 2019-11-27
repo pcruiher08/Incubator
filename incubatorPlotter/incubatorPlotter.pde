@@ -19,7 +19,7 @@ SimpleTweet simpletweet;
  printArray(Serial.list());
  myPort = new Serial(this, Serial.list()[0], 9600);
  frameRate(1);
- background(100);
+ background(167);
  
    simpletweet = new SimpleTweet(this);
 
@@ -91,7 +91,7 @@ SimpleTweet simpletweet;
  // draw the line:
  
  int shift=40;            // set trace origin
- stroke(255,0,0);              // trace colour
+ stroke(0,0,0);              // trace colour
  for(int i=0;i<2;i++){
 
    //point(xPos,height-inByte*5);
@@ -101,15 +101,21 @@ SimpleTweet simpletweet;
  
  
  
- if(inByte>=60){
+ if(inByte>=60 && !temperatureFlag){
      temperatureFlag = true;
      String tweet = simpletweet.tweetImage(get(), 
-    "#ILoveMicrocontrollers\n");
+    "#ILoveMicrocontrollers\n"
+     + "Danger, the temperature has reached unsafe values");
     println("Posted " + tweet);
  }
  
- if(inByte <= 30){
+ if(inByte <= 30 && temperatureFlag){
    temperatureFlag = false;
+       
+     String tweet = simpletweet.tweetImage(get(), 
+    "#ILoveMicrocontrollers\n"
+     + "Safe temperature");
+    println("Posted " + tweet);
  }
  
  
@@ -118,7 +124,7 @@ SimpleTweet simpletweet;
    xPos = 40;
    println("estoy cleareando");
    background(0);
-   background(100); 
+   background(167); 
  } 
  
  }
